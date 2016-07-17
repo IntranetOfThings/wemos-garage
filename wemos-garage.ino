@@ -1,7 +1,7 @@
 #include <Homie.h>
 
 #define FW_NAME "wemos-garage"
-#define FW_VERSION "0.0.2"
+#define FW_VERSION "0.0.4"
 
 /* Magic sequence for Autodetectable Binary Upload */
 const char *__FLAGGED_FW_NAME = "\xbf\x84\xe4\x13\x54" FW_NAME "\x93\x44\x6b\xa7\x75";
@@ -11,7 +11,7 @@ const char *__FLAGGED_FW_VERSION = "\x6a\x3f\x3e\x0e\xe1" FW_VERSION "\xb0\x30\x
 #define PIN_RELAY       D1
 #define PIN_SENSOR      D5
 #define OPENER_EVENT_MS 1000
-#define DEBOUNCER_MS    50
+#define DEBOUNCER_MS    250
 
 // keep track of when the opener is pressed so we can un-set the
 // relay after a short time to simulate a button press
@@ -25,7 +25,7 @@ HomieNode openerNode("opener", "relay");
 HomieNode doorNode("door", "sensor");
 
 bool openerHandler(String value) {
-  if (value == "1" || value == "on" || value == "true") {
+  if (value == "1" || value == "ON") {
     digitalWrite(PIN_RELAY, HIGH);
     openerEvent = millis();
   }
@@ -49,7 +49,7 @@ void loopHandler() {
   int sensorValue = debouncer.read();
 
   if (sensorValue != lastSensorValue) {
-    if (Homie.setNodeProperty(doorNode, "state", sensorValue ? "open" : "closed", true)) {
+    if (Homie.setNodeProperty(doorNode, "state", sensorValue ? "OPEN" : "CLOSED", true)) {
       lastSensorValue = sensorValue;
     }
   }
